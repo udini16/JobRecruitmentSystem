@@ -40,7 +40,7 @@ public class CompanyModel {
             stmt.setString(8, registrationDate);
             stmt.setString(9, website);
 
-            int rowsInserted = stmt.executeUpdate();
+            int rowsInserted = stmt.executeUpdate();	
             return rowsInserted > 0; // If insertion was successful
         } catch (SQLException e) {
             e.printStackTrace();

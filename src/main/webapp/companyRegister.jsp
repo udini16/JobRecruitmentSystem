@@ -63,6 +63,9 @@
                 <input type="text" name="address" placeholder="Address" required>
             </div>
             <div class="form-group">
+                <input type="text" name="username" placeholder="Username" required>
+            </div>
+            <div class="form-group">
                 <input type="text" name="industryType" placeholder="Industry Type" required>
             </div>
             <div class="form-group">
