@@ -3,7 +3,8 @@
     // Get session attributes directly from the implicit session object
     String username = (String) session.getAttribute("username");
     String firstName = (String) session.getAttribute("firstName");
-
+    String userType = (String) session.getAttribute("userType");
+    
     // Redirect to login page if the user is not logged in
     if (username == null) {
         response.sendRedirect("login.jsp");
@@ -15,7 +16,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Homepage</title>
+    <title>Applicant Homepage</title>
     <style>
         /* Add your CSS styles here */
         body, html {
@@ -81,20 +82,20 @@
 <body>
     <div class="navbar">
         <div class="nav-links">
-            <a href="homepage.jsp" class="<%= request.getRequestURI().contains("homepage.jsp") ? "active" : "" %>">Home</a>
-            <a href="profile.jsp" class="<%= request.getRequestURI().contains("profile.jsp") ? "active" : "" %>">Profile</a>
-            <a href="settings.jsp" class="<%= request.getRequestURI().contains("settings.jsp") ? "active" : "" %>">Settings</a>
+            <a href="applicantHomepage.jsp" class="active">Home</a>
+            <a href="profile.jsp">Profile</a>
+            <a href="settings.jsp">Settings</a>
         </div>
         <div class="user-info">
-            Welcome, <%= firstName != null ? firstName : username %>!
+            Welcome, <%= firstName %>!
         </div>
         <div class="logout">
             <a href="LogoutController">Logout</a>
         </div>
     </div>
     <div class="content">
-        <h1>Welcome to Your Homepage</h1>
-        <p>Here, you can manage your account, view your profile, and explore more features.</p>
+        <h1>Welcome to Your Applicant Homepage</h1>
+        <p>Here you can manage your profile, browse job postings, and more.</p>
     </div>
     <footer>
         <p>&copy; 2024 Your Company Name. All rights reserved.</p>
