@@ -37,7 +37,7 @@ public class UpdateJobController extends HttpServlet {
         }
 
         // Database update query
-        String query = "UPDATE job_postings SET jobTitle = ?, description = ?, requirement = ?, " +
+        String query = "UPDATE job SET jobTitle = ?, description = ?, requirement = ?, " +
                        "postingDate = ?, deadline = ? WHERE jobID = ?";
 
         try (Connection conn = ConnectionManager.getConnection();

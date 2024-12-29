@@ -1,9 +1,9 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.sql.*" %>
 <%
+    // Check if the user is logged in
     String companyName = (String) session.getAttribute("companyName");
 
-    // Redirect to login page if the user is not logged in
     if (companyName == null) {
         response.sendRedirect("login.jsp");
         return;
@@ -14,14 +14,36 @@
     PreparedStatement pstmt = null;
     ResultSet rs = null;
 
-    String query = "SELECT jobID, jobTitle, description, requirement, postingDate, deadline " +
-                   "FROM job_postings WHERE companyName = ?";
-
+    String companyID = null;
     try {
-        conn = db.connection.ConnectionManager.getConnection(); // Adjust with your ConnectionManager setup
+        // Establish the connection
+        conn = db.connection.ConnectionManager.getConnection();
+
+        // Fetch companyID based on companyName
+        String companyIDQuery = "SELECT companyID FROM company WHERE companyName = ?";
+        try (PreparedStatement companyStmt = conn.prepareStatement(companyIDQuery)) {
+            companyStmt.setString(1, companyName);
+            try (ResultSet rsCompany = companyStmt.executeQuery()) {
+                if (rsCompany.next()) {
+                    companyID = rsCompany.getString("companyID");
+                }
+            }
+        }
+
+        // If companyID not found, throw an error
+        if (companyID == null) {
+            throw new SQLException("Company ID not found for company name: " + companyName);
+        }
+
+        // Query to fetch jobs for the company
+        String query = "SELECT j.jobID, j.jobTitle, j.description, j.requirement, j.postingDate, j.deadline " +
+                       "FROM job j " +
+                       "JOIN jobopportunities jo ON j.jobID = jo.jobID " +
+                       "WHERE jo.companyID = ?";
         pstmt = conn.prepareStatement(query);
-        pstmt.setString(1, companyName);
+        pstmt.setString(1, companyID);
         rs = pstmt.executeQuery();
+
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -79,7 +101,12 @@
         </thead>
         <tbody>
         <%
-            while (rs.next()) {
+            // Check if the result set is empty
+            if (!rs.isBeforeFirst()) {
+                out.println("<tr><td colspan='6'>No jobs found for your company.</td></tr>");
+            } else {
+                // Render rows for each job
+                while (rs.next()) {
         %>
             <tr>
                 <td><%= rs.getString("jobTitle") %></td>
@@ -95,6 +122,7 @@
                 </td>
             </tr>
         <%
+                }
             }
         %>
         </tbody>
@@ -104,6 +132,7 @@
 <%
     } catch (SQLException e) {
         e.printStackTrace();
+        out.println("<p>Error occurred: " + e.getMessage() + "</p>");
     } finally {
         if (rs != null) rs.close();
         if (pstmt != null) pstmt.close();

@@ -6,6 +6,12 @@
     String requirement = (String) request.getAttribute("requirement");
     String postingDate = (String) request.getAttribute("postingDate");
     String deadline = (String) request.getAttribute("deadline");
+
+    jobTitle = (jobTitle != null) ? jobTitle : "";
+    description = (description != null) ? description : "";
+    requirement = (requirement != null) ? requirement : "";
+    postingDate = (postingDate != null) ? postingDate : "";
+    deadline = (deadline != null) ? deadline : "";
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -58,6 +64,16 @@
         button:hover {
             background-color: #004bbf;
         }
+        a {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #0d6efd;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -67,13 +83,13 @@
             <input type="hidden" name="jobID" value="<%= jobID %>">
 
             <label for="jobTitle">Job Title:</label>
-            <input type="text" id="jobTitle" name="jobTitle" value="<%= jobTitle %>" required>
+            <input type="text" id="jobTitle" name="jobTitle" value="<%= jobTitle %>" maxlength="100" required>
 
             <label for="description">Job Description:</label>
-            <textarea id="description" name="description" rows="4" required><%= description %></textarea>
+            <textarea id="description" name="description" rows="4" maxlength="500" required><%= description %></textarea>
 
             <label for="requirement">Requirements:</label>
-            <textarea id="requirement" name="requirement" rows="3" required><%= requirement %></textarea>
+            <textarea id="requirement" name="requirement" rows="3" maxlength="300" required><%= requirement %></textarea>
 
             <label for="postingDate">Posting Date:</label>
             <input type="date" id="postingDate" name="postingDate" value="<%= postingDate %>" required>
@@ -83,6 +99,7 @@
 
             <button type="submit">Update Job</button>
         </form>
+        <a href="editJob.jsp">← Back to Job List</a>
     </div>
 </body>
 </html>

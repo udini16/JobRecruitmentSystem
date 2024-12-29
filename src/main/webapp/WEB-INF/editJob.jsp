@@ -1,27 +1,36 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="java.sql.*" %>
+<%@ page import="java.sql.*, db.connection.ConnectionManager" %>
 <%
-    String companyName = (String) session.getAttribute("companyName");
+    String companyID = (String) session.getAttribute("companyID");
+	
+	System.out.println("Session companyID: " + companyID);
 
-    // Redirect to login page if the user is not logged in
-    if (companyName == null) {
+	
+    if (companyID == null) {
         response.sendRedirect("login.jsp");
         return;
     }
 
-    // Database connection setup
     Connection conn = null;
     PreparedStatement pstmt = null;
     ResultSet rs = null;
 
-    String query = "SELECT jobID, jobTitle, description, requirement, postingDate, deadline " +
-                   "FROM job_postings WHERE companyName = ?";
+    String query = "SELECT j.jobID, j.jobTitle, j.description, j.requirement, j.postingDate, j.deadline " +
+                   "FROM job j " +
+                   "JOIN jobopportunities jo ON j.jobID = jo.jobID " +
+                   "WHERE jo.companyID = ?";
+
+    boolean hasJobs = false;
 
     try {
-        conn = db.connection.ConnectionManager.getConnection(); // Adjust with your ConnectionManager setup
+        conn = ConnectionManager.getConnection();
         pstmt = conn.prepareStatement(query);
-        pstmt.setString(1, companyName);
+        pstmt.setString(1, companyID);
+        out.println("Executing Query: " + pstmt.toString()); // Debug output
         rs = pstmt.executeQuery();
+
+        if (rs.isBeforeFirst()) { // Check for results
+            hasJobs = true;
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -29,43 +38,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit a Job</title>
-    <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-        }
-        table {
-            width: 90%;
-            margin: 20px auto;
-            border-collapse: collapse;
-            text-align: left;
-        }
-        th, td {
-            padding: 10px;
-            border: 1px solid #ccc;
-        }
-        th {
-            background-color: #0d6efd;
-            color: white;
-        }
-        .edit-button {
-            background-color: #0d6efd;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            text-decoration: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .edit-button:hover {
-            background-color: #004bbf;
-        }
-    </style>
 </head>
 <body>
-    <h1 style="text-align: center;">Edit a Job</h1>
+    <h1>Edit a Job</h1>
     <table>
         <thead>
             <tr>
@@ -90,7 +65,7 @@
                 <td>
                     <form action="EditJobController" method="get">
                         <input type="hidden" name="jobID" value="<%= rs.getInt("jobID") %>">
-                        <button type="submit" class="edit-button">Edit</button>
+                        <button type="submit">Edit</button>
                     </form>
                 </td>
             </tr>
@@ -102,11 +77,19 @@
 </body>
 </html>
 <%
+        } else {
+            out.println("<p>No jobs found for company ID: " + companyID + "</p>"); // Debug output
+        }
     } catch (SQLException e) {
         e.printStackTrace();
+        out.println("<p>Error occurred: " + e.getMessage() + "</p>");
     } finally {
-        if (rs != null) rs.close();
-        if (pstmt != null) pstmt.close();
-        if (conn != null) conn.close();
+        try {
+            if (rs != null) rs.close();
+            if (pstmt != null) pstmt.close();
+            if (conn != null) conn.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 %>
